@@ -4,3 +4,4 @@ set (CMAKE_CXX_STANDARD 14)
 project(se_sandbox)
 
 add_subdirectory(list)
+add_subdirectory(mm)
