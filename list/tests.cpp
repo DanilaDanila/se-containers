@@ -1,0 +1,150 @@
+#include <iostream>
+
+#include "list.h"
+
+using namespace lab618; // да, плохо
+
+typedef CSingleLinkedList<int> ilist;
+typedef CDualLinkedList<int> dilist;
+
+ilist irange(int start = 0, int stop = 10, int step = 1) {
+  ilist list;
+
+  for (int i = start; i < stop; i += step) {
+    list.pushBack(i);
+  }
+
+  return list;
+}
+
+void print_list(const ilist &list) {
+  for (auto it = list.begin(); it.isValid(); ++it) {
+    std::cout << *it << " ";
+  }
+
+  std::cout << "\n";
+}
+
+void test_list() {
+  std::cout << "Test list\n";
+  {
+    std::cout << "\tBasic test\n";
+    ilist list = irange();
+    print_list(list);
+  }
+
+  {
+    std::cout << "\tRemove odd\n";
+    ilist list = irange();
+    print_list(list);
+    for (auto it = list.begin(); it.isValid(); ++it) {
+      if (it.getData() % 2 == 1)
+        list.erase(it);
+    }
+    print_list(list);
+  }
+
+  {
+    std::cout << "\tRemove even\n";
+    ilist list = irange();
+    print_list(list);
+    for (auto it = list.begin(); it.isValid(); ++it) {
+      if (it.getData() % 2 == 0)
+        list.erase(it);
+    }
+    print_list(list);
+  }
+}
+
+dilist dirange(int start = 0, int stop = 10, int step = 1) {
+  dilist list;
+
+  for (int i = start; i < stop; i += step) {
+    list.pushBack(i);
+  }
+
+  return list;
+}
+
+void print_dlist(const dilist &list) {
+  for (auto it = list.begin(); it.isValid(); ++it) {
+    std::cout << *it << " ";
+  }
+
+  std::cout << "\n";
+}
+
+void dlist_iter_check(const dilist &list) {
+  for (auto it = list.begin(); it.isValid(); ++it)
+    ;
+  for (auto it = list.end(); it.isValid(); --it)
+    ;
+}
+
+void test_dlist() {
+  std::cout << "Test dlist\n";
+  {
+    std::cout << "\tBasic test\n";
+    dilist list = dirange();
+    print_dlist(list);
+  }
+
+  {
+    std::cout << "\tForward test\n";
+    {
+      std::cout << "\t\tRemove odd\n";
+      dilist list = dirange();
+      print_dlist(list);
+      for (auto it = list.begin(); it.isValid(); ++it) {
+        if (it.getData() % 2 == 1)
+          list.erase(it);
+      }
+      print_dlist(list);
+      dlist_iter_check(list);
+    }
+
+    {
+      std::cout << "\t\tRemove even\n";
+      dilist list = dirange();
+      print_dlist(list);
+      for (auto it = list.begin(); it.isValid(); ++it) {
+        if (it.getData() % 2 == 0)
+          list.erase(it);
+      }
+      print_dlist(list);
+      dlist_iter_check(list);
+    }
+  }
+
+  {
+    std::cout << "\tBackword test\n";
+    {
+      std::cout << "\t\tRemove odd\n";
+      dilist list = dirange();
+      print_dlist(list);
+      for (auto it = list.end(); it.isValid(); --it) {
+        if (it.getData() % 2 == 1)
+          list.eraseAndNext(it);
+      }
+      print_dlist(list);
+      dlist_iter_check(list);
+    }
+
+    {
+      std::cout << "\t\tRemove even\n";
+      dilist list = dirange();
+      print_dlist(list);
+      for (auto it = list.end(); it.isValid(); --it) {
+        if (it.getData() % 2 == 0)
+          list.eraseAndNext(it);
+      }
+      print_dlist(list);
+      dlist_iter_check(list);
+    }
+  }
+}
+
+int main() {
+  test_list();
+  test_dlist();
+}
