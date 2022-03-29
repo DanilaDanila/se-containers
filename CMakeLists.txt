@@ -5,3 +5,4 @@ project(se_sandbox)
 
 add_subdirectory(list)
 add_subdirectory(mm)
+add_subdirectory(hash)
