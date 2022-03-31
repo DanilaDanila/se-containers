@@ -25,8 +25,9 @@ public:
   CMemoryManager(int _default_block_size,
                  bool isDeleteElementsOnDestruct = false)
       : m_blkSize(_default_block_size),
-        m_isDeleteElementsOnDestruct(isDeleteElementsOnDestruct),
-        m_pBlocks(nullptr), m_pCurrentBlk(nullptr) {}
+
+        m_pBlocks(nullptr), m_pCurrentBlk(nullptr),
+        m_isDeleteElementsOnDestruct(isDeleteElementsOnDestruct) {}
 
   virtual ~CMemoryManager() { clear(); }
 
@@ -52,6 +53,8 @@ public:
 
       if (free_block == nullptr) {
         free_block = newBlock();
+        m_pCurrentBlk->pnext = free_block;
+        m_pCurrentBlk = free_block;
       }
 
       object = &free_block->pdata[free_block->firstFreeIndex];
@@ -94,6 +97,7 @@ private:
   block *newBlock() {
     block *new_block = new block;
     new_block->pdata = new T[m_blkSize];
+    new_block->pnext = nullptr;
     new_block->firstFreeIndex = 0;
     new_block->usedCount = 0;
 
