@@ -25,12 +25,42 @@ void print_list(const ilist &list) {
   std::cout << "\n";
 }
 
+void pop_list(ilist &list) {
+  const int N = list.getSize();
+  for (int i = 0; i < N; ++i) {
+    auto tmp = list.popFront();
+    ++tmp;
+  }
+}
+
 void test_list() {
+  std::cout << "Test all methods\n";
+  {
+    ilist list = irange();
+    int a = 1;
+    list.pushBack(a);
+    list.pushFront(a);
+    a = list.popFront();
+    ++a;
+    a = list.getSize();
+    ++a;
+
+    auto it = list.begin();
+    a = it.getData();
+    ++a;
+    a = *it;
+    ++a;
+    auto tmp = it.getLeaf();
+    a = tmp->data;
+    ++a;
+  }
+
   std::cout << "Test list\n";
   {
     std::cout << "\tBasic test\n";
     ilist list = irange();
     print_list(list);
+    pop_list(list);
   }
 
   {
@@ -42,6 +72,7 @@ void test_list() {
         list.erase(it);
     }
     print_list(list);
+    pop_list(list);
   }
 
   {
@@ -53,6 +84,7 @@ void test_list() {
         list.erase(it);
     }
     print_list(list);
+    pop_list(list);
   }
 }
 
@@ -74,6 +106,14 @@ void print_dlist(const dilist &list) {
   std::cout << "\n";
 }
 
+void pop_dlist(dilist &list) {
+  const int N = list.getSize();
+  for (int i = 0; i < N; ++i) {
+    auto tmp = list.popBack();
+    ++tmp;
+  }
+}
+
 void dlist_iter_check(const dilist &list) {
   for (auto it = list.begin(); it.isValid(); ++it)
     ;
@@ -82,11 +122,35 @@ void dlist_iter_check(const dilist &list) {
 }
 
 void test_dlist() {
+  std::cout << "Test all methods\n";
+  {
+    dilist list = dirange();
+    int a = 1;
+    list.pushBack(a);
+    list.pushFront(a);
+    a = list.popBack();
+    ++a;
+    a = list.popFront();
+    ++a;
+    a = list.getSize();
+    ++a;
+
+    auto it = list.begin();
+    a = it.getData();
+    ++a;
+    a = *it;
+    ++a;
+    auto tmp = it.getLeaf();
+    a = tmp->data;
+    ++a;
+  }
+
   std::cout << "Test dlist\n";
   {
     std::cout << "\tBasic test\n";
     dilist list = dirange();
     print_dlist(list);
+    pop_dlist(list);
   }
 
   {
@@ -101,6 +165,7 @@ void test_dlist() {
       }
       print_dlist(list);
       dlist_iter_check(list);
+      pop_dlist(list);
     }
 
     {
@@ -113,6 +178,7 @@ void test_dlist() {
       }
       print_dlist(list);
       dlist_iter_check(list);
+      pop_dlist(list);
     }
   }
 
@@ -128,6 +194,7 @@ void test_dlist() {
       }
       print_dlist(list);
       dlist_iter_check(list);
+      pop_dlist(list);
     }
 
     {
@@ -140,6 +207,7 @@ void test_dlist() {
       }
       print_dlist(list);
       dlist_iter_check(list);
+      pop_dlist(list);
     }
   }
 }
