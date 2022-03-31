@@ -94,7 +94,7 @@ public:
    * Функция добавления элемента в Хеш-таблицу. Возвращает false, если элемент
    * уже есть и true, если элемент добавлен.
    */
-  bool add(/*T **/ std::string *pElement) {
+  bool add(T *pElement) {
     unsigned idx;
     leaf *ptr = findLeaf(pElement, idx);
 
