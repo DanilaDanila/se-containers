@@ -105,8 +105,7 @@ public:
       it.setLeafPreBegin(tmp->pnext);
       m_pBegin = tmp->pnext;
     } else {
-      // it.setLeaf(tmp->pnext);
-      auto prev = m_pBegin;
+      leaf *prev = m_pBegin;
       for (; prev->pnext != tmp; prev = prev->pnext)
         ;
 
@@ -118,9 +117,9 @@ public:
   }
 
   int getSize() {
-    int len = 0;
+    int len = (m_pBegin != nullptr);
 
-    for (auto it = m_pBegin; it != m_pEnd; it = it->pnext)
+    for (leaf *it = m_pBegin; it != m_pEnd; it = it->pnext)
       ++len;
 
     return len;
@@ -181,14 +180,27 @@ public:
     }
 
     void operator++() {
-      m_pCurrent =
-          (m_pCurrent != nullptr) ? m_pCurrent->pnext : m_pBegin->pnext;
-      m_pBegin = nullptr;
+      if (m_pCurrent != nullptr) {
+        m_pCurrent = m_pCurrent->pnext;
+      } else if (m_pBegin != nullptr) {
+        m_pCurrent = m_pBegin;
+        m_pBegin = nullptr;
+      } else {
+        m_pCurrent = nullptr;
+        m_pEnd = nullptr;
+      }
     }
 
     void operator--() {
-      m_pCurrent = (m_pCurrent != nullptr) ? m_pCurrent->pprev : m_pEnd->pprev;
-      m_pEnd = nullptr;
+      if (m_pCurrent != nullptr) {
+        m_pCurrent = m_pCurrent->pprev;
+      } else if (m_pEnd != nullptr) {
+        m_pCurrent = m_pEnd;
+        m_pEnd = nullptr;
+      } else {
+        m_pCurrent = nullptr;
+        m_pBegin = nullptr;
+      }
     }
 
     T &getData() { return m_pCurrent->data; }
@@ -270,12 +282,15 @@ public:
     T data = m_pBegin->data;
 
     leaf *tmp = m_pBegin;
-    m_pBegin = m_pBegin->pnext;
-    m_pBegin->pprev = nullptr;
-    delete tmp;
 
-    if (m_pBegin == nullptr)
-      m_pEnd = nullptr;
+    if (m_pBegin->pnext == nullptr) {
+      m_pBegin = m_pEnd = nullptr;
+    } else {
+      m_pBegin = m_pBegin->pnext;
+      m_pBegin->pprev = nullptr;
+    }
+
+    delete tmp;
 
     return data;
   }
@@ -323,9 +338,9 @@ public:
   }
 
   int getSize() {
-    int len = 0;
+    int len = (m_pBegin != nullptr);
 
-    for (auto it = m_pBegin; it != m_pEnd; it = it->pnext)
+    for (leaf *it = m_pBegin; it != m_pEnd; it = it->pnext)
       ++len;
 
     return len;
