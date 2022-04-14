@@ -124,7 +124,7 @@ public:
    */
   bool update(T *pElement) {
     unsigned idx;
-    auto ptr = findLeaf(pElement, idx);
+    leaf *ptr = findLeaf(pElement, idx);
 
     if (ptr == nullptr) {
       this->add(pElement);
@@ -143,7 +143,7 @@ public:
    */
   T *find(const T &element) {
     unsigned idx;
-    auto *ptr = findLeaf(&element, idx);
+    leaf *ptr = findLeaf(&element, idx);
     return (ptr) ? ptr->pData : nullptr;
   }
 
@@ -153,19 +153,19 @@ public:
    */
   bool remove(const T &element) {
     unsigned idx;
-    auto *ptr = findLeaf(element);
+    leaf *ptr = findLeaf(element);
 
     if (ptr) {
       if (ptr == m_pTable[idx]) {
-        auto tmp = ptr;
+        leaf *tmp = ptr;
         m_pTable[idx] = m_pTable[idx]->pnext;
         m_Memory.deleteObject(tmp);
       } else {
-        auto it = m_pTable[idx];
+        leaf *it = m_pTable[idx];
         for (; Compare(element, it->pnext) != 0; it = it->pnext)
           ;
 
-        auto tmp = it->pnext;
+        leaf *tmp = it->pnext;
         it->pnext = it->pnext->pnext;
         m_Memory.deleteObject(tmp);
       }
