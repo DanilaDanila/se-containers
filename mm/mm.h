@@ -24,9 +24,8 @@ public:
 public:
   CMemoryManager(int _default_block_size,
                  bool isDeleteElementsOnDestruct = false)
-      : m_blkSize(_default_block_size),
-
-        m_pBlocks(nullptr), m_pCurrentBlk(nullptr),
+      : m_blkSize(_default_block_size), m_pBlocks(nullptr),
+        m_pCurrentBlk(nullptr),
         m_isDeleteElementsOnDestruct(isDeleteElementsOnDestruct) {}
 
   virtual ~CMemoryManager() { clear(); }
@@ -75,6 +74,7 @@ public:
       }
     }
 
+    p->~T();
     *reinterpret_cast<int *>(p) = holder->firstFreeIndex;
     holder->firstFreeIndex = (p - holder->pdata);
 
@@ -84,10 +84,16 @@ public:
   // Очистка данных, зависит от m_isDeleteElementsOnDestruct
   void clear() {
     if (m_isDeleteElementsOnDestruct) {
-      for (auto it = m_pBlocks; it != nullptr;) {
-        auto tmp = it;
+      for (block *it = m_pBlocks; it != nullptr;) {
+        block *tmp = it;
         it = it->pnext;
         deleteBlock(tmp);
+      }
+    } else {
+      for (block *it = m_pBlocks; it != nullptr; it = it->pnext) {
+        if (it->usedCount > 0) {
+          throw CException();
+        }
       }
     }
   }
@@ -96,16 +102,16 @@ private:
   // Создать новый блок данных. применяется в newObject
   block *newBlock() {
     block *new_block = new block;
-    new_block->pdata = new T[m_blkSize];
+    new_block->pdata = (T *)new char[sizeof(T) * m_blkSize];
     new_block->pnext = nullptr;
     new_block->firstFreeIndex = 0;
     new_block->usedCount = 0;
 
     for (int i = 0; i < m_blkSize - 1; ++i)
       *reinterpret_cast<int *>(&new_block->pdata[i]) = i + 1;
+
     *reinterpret_cast<int *>(&new_block->pdata[m_blkSize - 1]) = -1;
 
-    m_pCurrentBlk = new_block;
     return new_block;
   }
 
