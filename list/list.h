@@ -144,6 +144,10 @@ public:
 
   CIterator begin() const { return CIterator(m_pBegin); }
 
+  const leaf *__begin() const { return m_pBegin; }
+
+  const leaf *__end() const { return m_pEnd; }
+
 private:
   leaf *m_pBegin, *m_pEnd;
 };
@@ -365,6 +369,10 @@ public:
   CIterator begin() const { return CIterator(m_pBegin); }
 
   CIterator end() const { return CIterator(m_pEnd); }
+
+  const leaf *__begin() const { return m_pBegin; }
+
+  const leaf *__end() const { return m_pEnd; }
 
 private:
   leaf *m_pBegin, *m_pEnd;

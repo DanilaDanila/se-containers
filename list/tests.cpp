@@ -182,6 +182,19 @@ void dlist_iter_check(const dilist &list) {
     ;
 }
 
+void beautify_print(const ilist &list) {
+  for (auto it = list.begin(); it.isValid(); ++it) {
+    std::cout << "[" << it.getData() << "]";
+    if (it.getLeaf() == list.__begin()) {
+      std::cout << " <-- begin";
+    }
+    if (it.getLeaf() == list.__end()) {
+      std::cout << " <-- end";
+    }
+    std::cout << "\n";
+  }
+}
+
 TEST_CASE("just compiles") {
   CSingleLinkedList<int> list;
   const CSingleLinkedList<int> clist;
