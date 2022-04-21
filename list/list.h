@@ -105,6 +105,11 @@ public:
       it.setLeafPreBegin(tmp->pnext);
       m_pBegin = tmp->pnext;
     } else {
+      if (tmp == m_pEnd) {
+        for (m_pEnd = m_pBegin; m_pEnd->pnext->pnext != nullptr;
+             m_pEnd = m_pEnd->pnext)
+          ;
+      }
       leaf *prev = m_pBegin;
       for (; prev->pnext != tmp; prev = prev->pnext)
         ;
@@ -117,9 +122,9 @@ public:
   }
 
   int getSize() {
-    int len = (m_pBegin != nullptr);
+    int len = 0;
 
-    for (leaf *it = m_pBegin; it != m_pEnd; it = it->pnext)
+    for (leaf *it = m_pBegin; it != nullptr; it = it->pnext)
       ++len;
 
     return len;
@@ -338,9 +343,9 @@ public:
   }
 
   int getSize() {
-    int len = (m_pBegin != nullptr);
+    int len = 0;
 
-    for (leaf *it = m_pBegin; it != m_pEnd; it = it->pnext)
+    for (leaf *it = m_pBegin; it != nullptr; it = it->pnext)
       ++len;
 
     return len;
