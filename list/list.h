@@ -25,11 +25,12 @@ public:
     CIterator &operator=(const CIterator &src) {
       m_pCurrent = src.m_pCurrent;
       m_pBegin = src.m_pBegin;
+
       return *this;
     }
 
     bool operator!=(const CIterator &it) const {
-      return m_pCurrent != it.m_pCurrent || m_pBegin != m_pBegin;
+      return m_pCurrent != it.m_pCurrent || m_pBegin != it.m_pBegin;
     }
 
     void operator++() {
@@ -103,16 +104,19 @@ public:
 
     if (tmp == m_pBegin) {
       it.setLeafPreBegin(tmp->pnext);
-      m_pBegin = tmp->pnext;
-    } else {
-      if (tmp == m_pEnd) {
-        for (m_pEnd = m_pBegin; m_pEnd->pnext->pnext != nullptr;
-             m_pEnd = m_pEnd->pnext)
-          ;
+      if (m_pBegin == m_pEnd) {
+        m_pBegin = m_pEnd = nullptr;
+      } else {
+        m_pBegin = tmp->pnext;
       }
-      leaf *prev = m_pBegin;
-      for (; prev->pnext != tmp; prev = prev->pnext)
+    } else {
+      leaf *prev;
+      for (prev = m_pBegin; prev->pnext != tmp; prev = prev->pnext)
         ;
+
+      if (tmp == m_pEnd) {
+        m_pEnd = prev;
+      }
 
       prev->pnext = tmp->pnext;
       it.setLeaf(prev);
@@ -138,8 +142,7 @@ public:
       delete tmp;
     }
 
-    m_pBegin = nullptr;
-    m_pEnd = nullptr;
+    m_pBegin = m_pEnd = nullptr;
   }
 
   CIterator begin() const { return CIterator(m_pBegin); }
@@ -189,27 +192,13 @@ public:
     }
 
     void operator++() {
-      if (m_pCurrent != nullptr) {
-        m_pCurrent = m_pCurrent->pnext;
-      } else if (m_pBegin != nullptr) {
-        m_pCurrent = m_pBegin;
-        m_pBegin = nullptr;
-      } else {
-        m_pCurrent = nullptr;
-        m_pEnd = nullptr;
-      }
+      m_pCurrent = (m_pCurrent != nullptr) ? m_pCurrent->pnext : m_pBegin;
+      m_pBegin = m_pEnd = nullptr;
     }
 
     void operator--() {
-      if (m_pCurrent != nullptr) {
-        m_pCurrent = m_pCurrent->pprev;
-      } else if (m_pEnd != nullptr) {
-        m_pCurrent = m_pEnd;
-        m_pEnd = nullptr;
-      } else {
-        m_pCurrent = nullptr;
-        m_pBegin = nullptr;
-      }
+      m_pCurrent = (m_pCurrent != nullptr) ? m_pCurrent->pprev : m_pEnd;
+      m_pBegin = m_pEnd = nullptr;
     }
 
     T &getData() { return m_pCurrent->data; }
@@ -224,15 +213,13 @@ public:
     // применяется в erase и eraseAndNext
     void setLeafPreBegin(leaf *p) {
       m_pBegin = p;
-      m_pCurrent = nullptr;
-      m_pEnd = nullptr;
+      m_pCurrent = m_pEnd = nullptr;
     }
 
     // применяется в erase и eraseAndNext
     void setLeafPostEnd(leaf *p) {
       m_pEnd = p;
-      m_pCurrent = nullptr;
-      m_pBegin = nullptr;
+      m_pCurrent = m_pBegin = nullptr;
     }
 
     bool isValid() {
@@ -267,12 +254,16 @@ public:
     T data = m_pEnd->data;
 
     leaf *tmp = m_pEnd;
-    m_pEnd = m_pEnd->pprev;
-    m_pEnd->pnext = nullptr;
-    delete tmp;
 
-    if (m_pEnd == nullptr)
-      m_pBegin = nullptr;
+    m_pEnd = m_pEnd->pprev;
+
+    if (m_pEnd != nullptr) {
+      m_pEnd->pnext = nullptr;
+    } else {
+      m_pBegin = m_pEnd = nullptr;
+    }
+
+    delete tmp;
 
     return data;
   }
@@ -291,12 +282,12 @@ public:
     T data = m_pBegin->data;
 
     leaf *tmp = m_pBegin;
+    m_pBegin = tmp->pnext;
 
-    if (m_pBegin->pnext == nullptr) {
-      m_pBegin = m_pEnd = nullptr;
-    } else {
-      m_pBegin = m_pBegin->pnext;
+    if (m_pBegin != nullptr) {
       m_pBegin->pprev = nullptr;
+    } else {
+      m_pBegin = m_pEnd = nullptr;
     }
 
     delete tmp;
@@ -310,8 +301,13 @@ public:
 
     if (tmp == m_pBegin) {
       it.setLeafPreBegin(tmp->pnext);
-      m_pBegin = tmp->pnext;
-      m_pBegin->pprev = nullptr;
+
+      if (m_pBegin == m_pEnd) {
+        m_pBegin = m_pEnd = nullptr;
+      } else {
+        m_pBegin = tmp->pnext;
+        m_pBegin->pprev = nullptr;
+      }
     } else {
       it.setLeaf(tmp->pprev);
       tmp->pprev->pnext = tmp->pnext;
@@ -331,8 +327,13 @@ public:
 
     if (tmp == m_pEnd) {
       it.setLeafPostEnd(tmp->pprev);
-      m_pEnd = tmp->pprev;
-      m_pEnd->pnext = nullptr;
+
+      if (m_pBegin == m_pEnd) {
+        m_pBegin = m_pEnd = nullptr;
+      } else {
+        m_pEnd = tmp->pprev;
+        m_pEnd->pnext = nullptr;
+      }
     } else {
       it.setLeaf(tmp->pnext);
       tmp->pnext->pprev = tmp->pprev;

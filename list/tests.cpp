@@ -1,5 +1,4 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include <cassert>
 #include <doctest.h>
 #include <iostream>
 
@@ -10,14 +9,10 @@ using namespace lab618; // да, плохо
 typedef CSingleLinkedList<int> ilist;
 typedef CDualLinkedList<int> dilist;
 
-ilist irange(int start = 0, int stop = 10, int step = 1) {
-  ilist list;
-
+void irange(ilist &list, int start = 0, int stop = 10, int step = 1) {
   for (int i = start; i < stop; i += step) {
     list.pushBack(i);
   }
-
-  return list;
 }
 
 void print_list(const ilist &list) {
@@ -36,127 +31,10 @@ void pop_list(ilist &list) {
   }
 }
 
-void test_list_iter() {
-  {
-    ilist::CIterator iter;
-    assert(iter.isValid() == false);
-
-    ilist list;
-    assert(list.begin().isValid() == false);
-  }
-
-  {
-    ilist list = irange(0, 3);
-    auto it = list.begin();
-    assert(it.isValid() == true);
-    assert(it.getData() == 0);
-    ++it;
-    it = list.begin();
-    assert(it.isValid() == true);
-    assert(it.getData() == 0);
-    ++it;
-    assert(it.isValid() == true);
-    assert(it.getData() == 1);
-    ++it;
-    assert(it != list.begin());
-    assert(it.isValid() == true);
-    assert(it.getData() == 2);
-    ++it;
-    assert(it.isValid() == false);
-  }
-
-  {
-    ilist list = irange(0, 3);
-    auto it = list.begin();
-    assert(it.getLeaf()->data == 0);
-    assert(it.getLeaf()->pnext->data == 1);
-    assert(it.getLeaf()->pnext->pnext->data == 2);
-  }
-
-  { // setLeaf && setLeafPreBegin
-    /* Lorem ipsum dolor sip amet...
-     */
-  }
-}
-
-void test_list() {
-  // iter + pushBack
-  test_list_iter();
-
-  { // size
-    assert(ilist().getSize() == 0);
-    assert(irange(0, 0).getSize() == 0);
-    assert(irange(0, 10).getSize() == 10);
-    assert(irange(0, 5).getSize() == 5);
-  }
-
-  { // pushBack
-    int arr[] = {1, 2};
-    ilist list;
-    assert(list.getSize() == 0);
-    list.pushBack(arr[0]);
-    assert(list.getSize() == 1);
-    assert(list.begin().getData() == 1);
-    list.pushBack(arr[1]);
-    assert(list.getSize() == 2);
-    assert(list.begin().getLeaf()->pnext->data == 2);
-  }
-
-  { // pushFront
-    int arr[] = {1, 2};
-    ilist list;
-    assert(list.getSize() == 0);
-    list.pushFront(arr[0]);
-    assert(list.getSize() == 1);
-    assert(list.begin().getData() == 1);
-    list.pushFront(arr[1]);
-    assert(list.getSize() == 2);
-    assert(list.begin().getData() == 2);
-    assert(list.begin().getLeaf()->pnext->data == 1);
-  }
-
-  { // erase
-    ilist list = irange(0, 4);
-    auto it = list.begin();
-    assert(it.getData() == 0);
-    list.erase(it);
-    assert(it.isValid() == true);
-    ++it;
-    assert(it.getData() == 1);
-    ++it;
-    assert(it.getData() == 2);
-    list.erase(it);
-    assert(it.isValid() == true);
-    assert(it.getData() == 1);
-    ++it;
-    assert(it.getData() == 3);
-    list.erase(it);
-    assert(it.isValid() == true);
-    assert(it.getData() == 1);
-    ++it;
-    assert(it.isValid() == false);
-  }
-
-  { // clear
-    ilist list = irange();
-    assert(list.getSize() == 10);
-    list.clear();
-    assert(list.getSize() == 0);
-    assert(list.begin().isValid() == false);
-    list.clear(); // should be ok
-    assert(list.getSize() == 0);
-    assert(list.begin().isValid() == false);
-  }
-}
-
-dilist dirange(int start = 0, int stop = 10, int step = 1) {
-  dilist list;
-
+void dirange(dilist &list, int start = 0, int stop = 10, int step = 1) {
   for (int i = start; i < stop; i += step) {
     list.pushBack(i);
   }
-
-  return list;
 }
 
 void print_dlist(const dilist &list) {
@@ -280,7 +158,24 @@ TEST_CASE("getSize Test") {
 
 TEST_CASE("erase test list") {
   {
-    ilist list = irange();
+    ilist list;
+    irange(list, 0, 1);
+    auto it = list.begin();
+    list.erase(it);
+    CHECK(list.getSize() == 0);
+  }
+  {
+    ilist list;
+    irange(list, 0, 5);
+    for (auto it = list.begin(); it.isValid(); ++it) {
+      list.erase(it);
+    }
+
+    CHECK(list.getSize() == 0);
+  }
+  {
+    ilist list;
+    irange(list);
     for (auto it = list.begin(); it.isValid(); ++it) {
       if (it.getData() % 2 == 0)
         list.erase(it);
@@ -301,7 +196,8 @@ TEST_CASE("erase test list") {
   }
 
   {
-    ilist list = irange();
+    ilist list;
+    irange(list);
     for (auto it = list.begin(); it.isValid(); ++it) {
       if (it.getData() % 2 != 0)
         list.erase(it);
@@ -324,7 +220,8 @@ TEST_CASE("erase test list") {
 
 TEST_CASE("erase test dlist forward") {
   {
-    dilist list = dirange();
+    dilist list;
+    dirange(list);
     for (auto it = list.begin(); it.isValid(); ++it) {
       if (it.getData() % 2 == 0)
         list.erase(it);
@@ -345,7 +242,8 @@ TEST_CASE("erase test dlist forward") {
   }
 
   {
-    dilist list = dirange();
+    dilist list;
+    dirange(list);
     for (auto it = list.begin(); it.isValid(); ++it) {
       if (it.getData() % 2 != 0)
         list.erase(it);
@@ -368,7 +266,8 @@ TEST_CASE("erase test dlist forward") {
 
 TEST_CASE("erase test dlist backward") {
   {
-    dilist list = dirange();
+    dilist list;
+    dirange(list);
     for (auto it = list.end(); it.isValid(); --it) {
       if (it.getData() % 2 == 0)
         list.erase(it);
@@ -389,7 +288,8 @@ TEST_CASE("erase test dlist backward") {
   }
 
   {
-    dilist list = dirange();
+    dilist list;
+    dirange(list);
     for (auto it = list.end(); it.isValid(); --it) {
       if (it.getData() % 2 != 0)
         list.erase(it);
