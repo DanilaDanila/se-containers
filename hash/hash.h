@@ -82,12 +82,8 @@ public:
    * создаваемые листики списков разрешения коллизий храним в менеджере памяти.
    */
   CHash(int hashTableSize, int defaultBlockSize)
-      : m_tableSize(hashTableSize), m_pTable(new leaf *[hashTableSize]),
-        m_Memory(defaultBlockSize, true) {
-    for (int i = 0; i < hashTableSize; ++i) {
-      m_pTable[i] = nullptr;
-    }
-  }
+      : m_tableSize(hashTableSize), m_pTable(nullptr),
+        m_Memory(defaultBlockSize, true) {}
 
   /*
    * Деструктор. Должен освобождать всю выделенную память
@@ -99,6 +95,12 @@ public:
    * уже есть и true, если элемент добавлен.
    */
   bool add(T *pElement) {
+    if (m_pTable == nullptr) {
+      for (int i = 0; i < m_tableSize; ++i) {
+        m_pTable[i] = nullptr;
+      }
+    }
+
     unsigned idx;
     leaf *ptr = findLeaf(pElement, idx);
 
@@ -196,7 +198,9 @@ public:
    */
   void clear() {
     delete[] m_pTable;
+    m_pTable = nullptr;
     // Остальное очистит m_Memory
+    m_Memory.clear();
   }
 
 private:
