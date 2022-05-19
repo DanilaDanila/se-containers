@@ -3,7 +3,6 @@
 #include <cassert>
 #include <ctime>
 #include <iostream>
-#include <unistd.h>
 #include <vector>
 
 using namespace lab618;
@@ -116,7 +115,7 @@ void stress_test() {
 }
 
 int main() {
-  srand(time_t(42));
+  srand(123);
   cmp_test();
   some_test();
   stress_test();
