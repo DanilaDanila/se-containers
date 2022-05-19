@@ -42,7 +42,7 @@ public:
 
     if (m_pCurrentBlk->firstFreeIndex != -1) {
       object = &m_pCurrentBlk->pdata[m_pCurrentBlk->firstFreeIndex];
-      m_pCurrentBlk->firstFreeIndex = *reinterpret_cast<int *>(object);
+      m_pCurrentBlk->firstFreeIndex = *reinterpret_cast<char *>(object);
     } else {
       block *free_block;
       for (free_block = m_pBlocks; free_block != nullptr;
@@ -59,7 +59,7 @@ public:
       }
 
       object = &free_block->pdata[free_block->firstFreeIndex];
-      free_block->firstFreeIndex = *reinterpret_cast<int *>(object);
+      free_block->firstFreeIndex = *reinterpret_cast<char *>(object);
     }
 
     return object;
@@ -77,7 +77,7 @@ public:
     }
 
     p->~T();
-    *reinterpret_cast<int *>(p) = holder->firstFreeIndex;
+    *reinterpret_cast<char *>(p) = holder->firstFreeIndex;
     holder->firstFreeIndex = (p - holder->pdata);
 
     return true;
@@ -110,9 +110,9 @@ private:
     new_block->usedCount = 0;
 
     for (int i = 0; i < m_blkSize - 1; ++i)
-      *reinterpret_cast<int *>(&new_block->pdata[i]) = i + 1;
+      *reinterpret_cast<char *>(&new_block->pdata[i]) = i + 1;
 
-    *reinterpret_cast<int *>(&new_block->pdata[m_blkSize - 1]) = -1;
+    *reinterpret_cast<char *>(&new_block->pdata[m_blkSize - 1]) = -1;
 
     return new_block;
   }
