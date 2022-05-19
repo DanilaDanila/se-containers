@@ -3,6 +3,7 @@
 #include <cassert>
 #include <ctime>
 #include <iostream>
+#include <string>
 #include <vector>
 
 using namespace lab618;
