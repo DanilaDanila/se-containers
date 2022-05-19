@@ -8,6 +8,11 @@
 
 using namespace lab618;
 
+struct Item {
+  std::string key;
+  unsigned int value;
+};
+
 unsigned int hash(const std::string *str) {
   unsigned int hsum = 0;
   unsigned int p = 1;
@@ -19,10 +24,16 @@ unsigned int hash(const std::string *str) {
   return hsum;
 }
 
+unsigned int ihash(const Item *item) { return hash(&(item->key)); }
+
 //  Нам нужна только проверка на равенство, поэтому можно
 // возвращать только '0' (равенство) и 'не 0' (неравенство).
 int cmp(const std::string *str0, const std::string *str1) {
   return 1 - static_cast<int>(*str0 == *str1);
+}
+
+int icmp(const Item *item0, const Item *item1) {
+  return 1 - static_cast<int>(item0->key == item1->key);
 }
 
 std::string gen_random(const int len) {
@@ -48,7 +59,36 @@ void cmp_test() {
   assert(cmp(&second, &second) == 0);
 }
 
+void some_test() {
+  const int N = 20;
+  auto hashmap = CHash<Item, ihash, icmp>(N, 16);
+  Item strs[2 * N];
+  for (int i = 0; i < 2 * N; ++i) {
+    strs[i].key = std::to_string(i * i);
+    strs[i].value = 1;
+    hashmap.add(&strs[i]);
+  }
+
+  for (int i = 0; i < 2 * N; ++i) {
+    Item item = {std::to_string(i * i), 1};
+    std::cerr << i << ": " << hashmap.find(item) << "\n";
+  }
+
+  Item items[2 * N];
+  for (int i = 0; i < 2 * N; ++i) {
+    items[i].key = std::to_string(i * i);
+    items[i].value = 3;
+    hashmap.update(&items[i]);
+  }
+
+  for (int i = 0; i < 2 * N; ++i) {
+    Item item = {std::to_string(i * i), 21313};
+    hashmap.remove(item);
+  }
+}
+
 void stress_test() {
+  return;
   const int N = 2000;
   auto hashmap = CHash<std::string, hash, cmp>(N, 16);
 
@@ -78,6 +118,7 @@ void stress_test() {
 int main() {
   srand(time_t(42));
   cmp_test();
+  some_test();
   stress_test();
   return 0;
 }

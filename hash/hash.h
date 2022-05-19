@@ -83,7 +83,11 @@ public:
    */
   CHash(int hashTableSize, int defaultBlockSize)
       : m_tableSize(hashTableSize), m_pTable(new leaf *[hashTableSize]),
-        m_Memory(defaultBlockSize, true) {}
+        m_Memory(defaultBlockSize, true) {
+    for (int i = 0; i < hashTableSize; ++i) {
+      m_pTable[i] = nullptr;
+    }
+  }
 
   /*
    * Деструктор. Должен освобождать всю выделенную память
@@ -103,13 +107,20 @@ public:
         leaf *tmp = m_Memory.newObject();
         m_pTable[idx] = new (tmp) leaf;
         m_pTable[idx]->pnext = nullptr;
+
+        m_pTable[idx]->pData = pElement;
+      } else {
+        leaf *it;
+        for (it = m_pTable[idx]; it->pnext != nullptr; it = it->pnext)
+          ;
+
+        leaf *tmp = m_Memory.newObject();
+        tmp = new (tmp) leaf;
+        tmp->pData = pElement;
+        tmp->pnext = nullptr;
+
+        it->pnext = tmp;
       }
-
-      leaf *it;
-      for (it = m_pTable[idx]; it->pnext != nullptr; it = it->pnext)
-        ;
-
-      it->pData = pElement;
 
       return true;
     } else {
@@ -144,7 +155,7 @@ public:
   T *find(const T &element) {
     unsigned idx;
     leaf *ptr = findLeaf(&element, idx);
-    return (ptr) ? ptr->pData : nullptr;
+    return (ptr != nullptr) ? ptr->pData : nullptr;
   }
 
   /*
@@ -153,24 +164,28 @@ public:
    */
   bool remove(const T &element) {
     unsigned idx;
-    leaf *ptr = findLeaf(element);
+    leaf *ptr = findLeaf(&element, idx);
 
-    if (ptr) {
-      if (ptr == m_pTable[idx]) {
-        leaf *tmp = ptr;
-        m_pTable[idx] = m_pTable[idx]->pnext;
-        m_Memory.deleteObject(tmp);
-      } else {
-        leaf *it = m_pTable[idx];
-        for (; Compare(element, it->pnext) != 0; it = it->pnext)
-          ;
+    if (ptr != nullptr) {
+      leaf *elem;
+      for (elem = m_pTable[idx]; elem != nullptr; elem = elem->pnext) {
+        if (Compare(&element, elem->pData) == 0) {
+          if (elem == m_pTable[idx]) {
+            m_pTable[idx] = elem->pnext;
+          } else {
+            leaf *prev;
+            for (prev = m_pTable[idx]; prev->pnext != elem; prev = prev->pnext)
+              ;
 
-        leaf *tmp = it->pnext;
-        it->pnext = it->pnext->pnext;
-        m_Memory.deleteObject(tmp);
+            prev->pnext = elem->pnext;
+          }
+
+          m_Memory.deleteObject(elem);
+          return true;
+        }
       }
 
-      return true;
+      return false;
     } else {
       return false;
     }
