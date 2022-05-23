@@ -96,6 +96,7 @@ public:
    */
   bool add(T *pElement) {
     if (m_pTable == nullptr) {
+      m_pTable = new leaf *[m_tableSize];
       for (int i = 0; i < m_tableSize; ++i) {
         m_pTable[i] = nullptr;
       }
@@ -197,6 +198,10 @@ public:
    * Удаление всех элементов. Можно вызвать в деструкторе
    */
   void clear() {
+    if (m_pTable == nullptr) {
+      return;
+    }
+
     delete[] m_pTable;
     m_pTable = nullptr;
     // Остальное очистит m_Memory

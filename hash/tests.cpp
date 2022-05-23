@@ -11,6 +11,12 @@ using namespace lab618;
 struct Item {
   std::string key;
   unsigned int value;
+
+  ~Item() {
+    static int count = 0;
+    ++count;
+    std::cout << count << ": I am destructor\n";
+  }
 };
 
 unsigned int hash(const std::string *str) {
@@ -59,6 +65,13 @@ void cmp_test() {
   assert(cmp(&second, &second) == 0);
 }
 
+void simple_test() {
+  const int N = 20;
+  auto hashmap = CHash<Item, ihash, icmp>(N, 16);
+  Item item = {.key = "abacaba", .value = 1234};
+  hashmap.add(&item);
+}
+
 void some_test() {
   const int N = 20;
   auto hashmap = CHash<Item, ihash, icmp>(N, 16);
@@ -71,7 +84,9 @@ void some_test() {
 
   for (int i = 0; i < 2 * N; ++i) {
     Item item = {std::to_string(i * i), 1};
-    std::cerr << i << ": " << hashmap.find(item) << "\n";
+    Item *p = hashmap.find(item);
+    assert(p->key == item.key);
+    assert(p->value == item.value);
   }
 
   Item items[2 * N];
@@ -79,6 +94,12 @@ void some_test() {
     items[i].key = std::to_string(i * i);
     items[i].value = 3;
     hashmap.update(&items[i]);
+  }
+
+  for (int i = 0; i < 2 * N; ++i) {
+    Item *p = hashmap.find(items[i]);
+    assert(p->key == items[i].key);
+    assert(p->value == items[i].value);
   }
 
   for (int i = 0; i < 2 * N; ++i) {
@@ -118,6 +139,7 @@ void stress_test() {
 int main() {
   srand(123);
   cmp_test();
+  simple_test();
   some_test();
   stress_test();
   return 0;

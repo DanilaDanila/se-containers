@@ -91,6 +91,7 @@ public:
         it = it->pnext;
         deleteBlock(tmp);
       }
+      m_pBlocks = nullptr;
     } else {
       for (block *it = m_pBlocks; it != nullptr; it = it->pnext) {
         if (it->usedCount > 0) {
@@ -119,6 +120,10 @@ private:
 
   // Освободить память блока данных. Применяется в clear
   void deleteBlock(block *p) {
+    if (p == nullptr) {
+      return;
+    }
+
     delete[] p->pdata;
     delete p;
   }
